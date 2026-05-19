@@ -1,2 +1,2 @@
 # Linea-Recta
-el programa grafica una recta en caunto a la formula f(x)=bx + c
+El programa grafica una recta en cuanto a la formula f(x)=bx + c
