@@ -6,7 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import math
 
 # Configuración inicial de CustomTkinter
-ctk.set_appearance_mode("System")  # "Dark", "Light" o "System"
+ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
 class LinearFunctionApp(ctk.CTk):
@@ -15,8 +15,7 @@ class LinearFunctionApp(ctk.CTk):
         self.title("Generador de Funciones Lineales f(x) = mx + b")
         self.geometry("850x650")
         self.minsize(700, 500)
-        self.canvas_widget = None  # Para gestionar la recreación del gráfico
-
+        self.canvas_widget = None  # Referencia al lienzo de Matplotlib
         self._setup_ui()
 
     def _setup_ui(self):
@@ -34,10 +33,20 @@ class LinearFunctionApp(ctk.CTk):
         self.b_entry = ctk.CTkEntry(self.input_frame, width=150)
         self.b_entry.grid(row=1, column=1, padx=10, pady=15)
 
+        # Botones de acción (lado a lado)
+        self.input_frame.grid_columnconfigure(0, weight=1)
+        self.input_frame.grid_columnconfigure(1, weight=1)
+
         self.plot_btn = ctk.CTkButton(
             self.input_frame, text="Generar y Graficar", command=self._generate_plot
         )
-        self.plot_btn.grid(row=2, column=0, columnspan=2, pady=10, padx=10)
+        self.plot_btn.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
+
+        self.clear_btn = ctk.CTkButton(
+            self.input_frame, text="🗑️ Limpiar Todo", 
+            fg_color="red", hover_color="darkred", command=self._clear_all
+        )
+        self.clear_btn.grid(row=2, column=1, pady=10, padx=10, sticky="ew")
 
         self.status_label = ctk.CTkLabel(self, text="", text_color="red")
         self.status_label.pack(pady=5)
@@ -52,16 +61,16 @@ class LinearFunctionApp(ctk.CTk):
         b_str = self.b_entry.get().strip()
 
         if not m_str or not b_str:
-            raise ValueError("Los campos 'm' y 'b' no pueden estar vacíos.")
+            raise ValueError("⚠️ Los campos 'm' y 'b' no pueden estar vacíos.")
 
         try:
             m = float(m_str)
             b = float(b_str)
         except ValueError:
-            raise ValueError("'m' y 'b' deben ser números válidos.")
+            raise ValueError("⚠️ 'm' y 'b' deben ser números válidos.")
 
         if not (math.isfinite(m) and math.isfinite(b)):
-            raise ValueError("'m' y 'b' deben ser valores finitos (no inf o nan).")
+            raise ValueError("⚠️ 'm' y 'b' deben ser valores finitos (no inf o nan).")
 
         return m, b
 
@@ -72,12 +81,12 @@ class LinearFunctionApp(ctk.CTk):
             self.status_label.configure(text=str(e), text_color="red")
             return
 
-        self.status_label.configure(text="Procesando datos y graficando...", text_color="green")
-        self.update_idletasks()  # Actualiza la interfaz antes de graficar
+        self.status_label.configure(text="✅ Procesando datos y graficando...", text_color="green")
+        self.update_idletasks()
 
         # Limpiar gráfico anterior si existe
         if self.canvas_widget:
-            self.canvas_widget.destroy()
+            self.canvas_widget.get_tk_widget().destroy()
             self.canvas_widget = None
 
         # ── 1. Generación de datos con NumPy ──
@@ -86,8 +95,7 @@ class LinearFunctionApp(ctk.CTk):
 
         # ── 2. Uso de Pandas para estructurar los datos ──
         df = pd.DataFrame({"x": x, "y": y})
-        df["f(x)"] = df.apply(lambda row: f"{m}·{row['x']:.2f} + {b}", axis=1)
-        # Pandas se usa aquí para manejar los datos de forma tabular antes de graficar
+        df["ecuacion"] = f"{m}·x + {b}"
 
         # ── 3. Creación de la figura con Matplotlib ──
         fig, ax = plt.subplots(figsize=(6, 4.5))
@@ -106,12 +114,30 @@ class LinearFunctionApp(ctk.CTk):
         self.canvas_widget.draw()
         self.canvas_widget.get_tk_widget().pack(fill="both", expand=True)
 
-        # Liberar memoria de la figura original
         plt.close(fig)
 
         self.status_label.configure(
-            text=f"Función graficada: f(x) = {m}x + {b}  |  Datos procesados: {len(df)} puntos",
+            text=f"✅ Función graficada: f(x) = {m}x + {b}  |  Puntos procesados: {len(df)}",
             text_color="green"
+        )
+
+    def _clear_all(self):
+        """Limpia campos de entrada, estado y la gráfica actual."""
+        # 1. Vaciar campos de texto
+        self.m_entry.delete(0, "end")
+        self.b_entry.delete(0, "end")
+        
+        # 2. Limpiar mensaje de estado
+        self.status_label.configure(text="")
+        
+        # 3. Destruir canvas si existe
+        if self.canvas_widget:
+            self.canvas_widget.get_tk_widget().destroy()
+            self.canvas_widget = None
+            
+        self.status_label.configure(
+            text="🧹 Datos y gráfica limpiados. Ingresa nuevos valores.",
+            text_color="blue"
         )
 
 if __name__ == "__main__":
