@@ -61,16 +61,16 @@ class LinearFunctionApp(ctk.CTk):
         b_str = self.b_entry.get().strip()
 
         if not m_str or not b_str:
-            raise ValueError("⚠️ Los campos 'm' y 'b' no pueden estar vacíos.")
+            raise ValueError("Los campos 'm' y 'b' no pueden estar vacíos.")
 
         try:
             m = float(m_str)
             b = float(b_str)
         except ValueError:
-            raise ValueError("⚠️ 'm' y 'b' deben ser números válidos.")
+            raise ValueError("'m' y 'b' deben ser números válidos.")
 
         if not (math.isfinite(m) and math.isfinite(b)):
-            raise ValueError("⚠️ 'm' y 'b' deben ser valores finitos (no inf o nan).")
+            raise ValueError("'m' y 'b' deben ser valores finitos (no inf o nan).")
 
         return m, b
 
@@ -81,7 +81,7 @@ class LinearFunctionApp(ctk.CTk):
             self.status_label.configure(text=str(e), text_color="red")
             return
 
-        self.status_label.configure(text="✅ Procesando datos y graficando...", text_color="green")
+        self.status_label.configure(text="Procesando datos y graficando...", text_color="green")
         self.update_idletasks()
 
         # Limpiar gráfico anterior si existe
@@ -117,7 +117,7 @@ class LinearFunctionApp(ctk.CTk):
         plt.close(fig)
 
         self.status_label.configure(
-            text=f"✅ Función graficada: f(x) = {m}x + {b}  |  Puntos procesados: {len(df)}",
+            text=f"Función graficada: f(x) = {m}x + {b}  |  Puntos procesados: {len(df)}",
             text_color="green"
         )
 
@@ -136,7 +136,7 @@ class LinearFunctionApp(ctk.CTk):
             self.canvas_widget = None
             
         self.status_label.configure(
-            text="🧹 Datos y gráfica limpiados. Ingresa nuevos valores.",
+            text="Datos y gráfica limpiados. Ingresa nuevos valores.",
             text_color="blue"
         )
 
