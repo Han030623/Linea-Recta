@@ -2,4 +2,3 @@ customtkinter
 numpy
 pandas
 matplotlib
-math
